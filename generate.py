@@ -41,10 +41,12 @@ def color_func_1(word, font_size, position, orientation, random_state=None, **kw
 
 def color_func_2(word, font_size, position, orientation, random_state=None, **kwargs):
     colors = (
-        "rgb(255, 97, 56)",
+        "rgb(251, 115, 116)",
         "rgb(0, 163, 136)",
         "rgb(255, 92, 157)",
-        "rgb(190, 235, 159)",
+        "rgb(66, 60, 64)",
+        "rgb(121, 191, 161)",
+        "rgb(245, 163, 82)",
         )
     index = random.randint(0, len(colors) - 1)
     return colors[index]
