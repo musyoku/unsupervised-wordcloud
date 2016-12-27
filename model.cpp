@@ -274,15 +274,19 @@ public:
 		return _npylm->_hpylm->get_num_customers();
 	}
 	python::dict get_frequent_words(int threshold){
-		unordered_map<id, int> count_for_id;
+		unordered_map<wstring, int> count_for_id;
 		for(auto elem: _npylm->_hpylm->_root->_arrangement){
 			id token_id = elem.first;
+			if(token_id == _vocab->get_eos_id()){
+				continue;
+			}
 			vector<int> &table = elem.second;
 			double count = std::accumulate(table.begin(), table.end(), 0);	// テーブルの客数が出現頻度
 			if(count < threshold){
 				continue;
 			}
-			count_for_id[token_id] = count;
+			wstring word = _vocab->token_id_to_string(token_id);
+			count_for_id[word] = count;
 		}
 		return dict_from_map(count_for_id);
 	}
