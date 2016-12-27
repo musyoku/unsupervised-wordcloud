@@ -1,4 +1,5 @@
 #include <boost/python.hpp>
+#include <boost/python/tuple.hpp>
 #include <boost/format.hpp>
 #include "npylm/core/npylm.h"
 #include "npylm/core/vocab.h"
@@ -12,11 +13,22 @@ python::list list_from_vector(vector<T> &vec){
 	 python::list list;
 	 typename vector<T>::const_iterator it;
 
-	 for(it = vec.begin(); it != vec.end(); ++it)   {
+	 for(it = vec.begin(); it != vec.end(); ++it){
 		  list.append(*it);
 	 }
 	 return list;
 }
+
+template<class T1,class T2>
+python::dict dict_from_map(unordered_map<T1,T2> &map_){  
+     python::dict py_dict;
+     typename unordered_map<T1,T2>::const_iterator it;
+     for(it = map_.begin(); it != map_.end(); ++it){
+          py_dict[it->first]=it->second;        
+     }
+     return py_dict;  
+}
+
 // Pythonラッパー
 class PyNPYLM{
 private:
@@ -261,66 +273,18 @@ public:
 	int get_num_customers_of_hpylm(){
 		return _npylm->_hpylm->get_num_customers();
 	}
-	Python::list generate_cloud(){
-		npylm->sample_word_of_length_from_vpylm(lattice->_max_length + 1);
-		set<pair<id, double>, Comparator> probabilities;
-		map<int, double> sum_pw_for_k;
-		cout << npylm->_hpylm->_root->_arrangement.size() << endl;
-		for(auto elem: npylm->_hpylm->_root->_arrangement){
+	python::dict get_frequent_words(int threshold){
+		unordered_map<id, int> count_for_id;
+		for(auto elem: _npylm->_hpylm->_root->_arrangement){
 			id token_id = elem.first;
 			vector<int> &table = elem.second;
-			double g0 = npylm->compute_g0_for_token(token_id);
-			double pw = npylm->_hpylm->_root->Pw(token_id, g0, npylm->_hpylm->_d_m, npylm->_hpylm->_theta_m);
-			auto itr = npylm->_hpylm->_root->_arrangement.find(token_id);
-			double num_customers = std::accumulate(table.begin(), table.end(), 0);
-			double r = Sampler::uniform(0, 1);
-			num_customers = (num_customers + r) * 100;
-			pair<id, double> p(token_id, num_customers);
-			probabilities.insert(p);
-			wstring word = vocab->token_id_to_string(token_id);
-			int k = word.size();
-			sum_pw_for_k[k] += pw;
-		}
-		cout << probabilities.size() << endl;
-		for(int limit = 2;limit < 9;limit++){
-			int i = 0;
-			// int to = (int)(500 * npylm->poisson_k_lambda(limit, 5));
-			int to = 50;
-			if(limit < 7){
-				to = 200;
+			double count = std::accumulate(table.begin(), table.end(), 0);	// テーブルの客数が出現頻度
+			if(count < threshold){
+				continue;
 			}
-			for(auto itr = probabilities.begin();itr != probabilities.end();itr++){
-				id token_id = itr->first;
-				double pw = itr->second;
-				if(token_id == vocab->get_eos_id()){
-					continue;
-				}
-				wstring word = vocab->token_id_to_string(token_id);
-				int k = word.size();
-				if(k != limit){
-					continue;
-				}
-				int type = Chartype::detect_word_type(word);
-				if(type == WORDTYPE_HIRAGANA && k < 3){
-					continue;
-				}
-				if(k > 6 && type == WORDTYPE_KANJI_HIRAGANA){
-					continue;
-				}
-				if(pw < 500){
-					continue;
-				}
-				// wcout << word << ": " << itr->second << endl;
-				// wcout << L"(\"" << word << L"\"," << int(10000 * pw / sum_pw_for_k[k]) << "),";
-				wcout << L"(\"" << word << L"\"," << int(pw / 100) << "),";
-				// wcout << word << "(" << type << ") / ";
-				i++;
-				if(i > to){
-					break;
-				}
-			}
-			wcout << endl;
+			count_for_id[token_id] = count;
 		}
+		return dict_from_map(count_for_id);
 	}
 };
 
@@ -344,5 +308,6 @@ BOOST_PYTHON_MODULE(model){
 	.def("get_num_nodes_of_vpylm", &PyNPYLM::get_num_nodes_of_vpylm)
 	.def("set_max_word_length", &PyNPYLM::set_max_word_length)
 	.def("set_burn_in_period_for_pk_vpylm", &PyNPYLM::set_burn_in_period_for_pk_vpylm)
-	.def("update_pk_vpylm", &PyNPYLM::update_pk_vpylm);
+	.def("update_pk_vpylm", &PyNPYLM::update_pk_vpylm)
+	.def("get_frequent_words", &PyNPYLM::get_frequent_words);
 }

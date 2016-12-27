@@ -10,6 +10,7 @@ parser.add_argument("-w", "--width", type=int, default=800, help="クラウド�
 parser.add_argument("-h", "--height", type=int, default=450, help="クラウドの高さ.")
 parser.add_argument("-c", "--color", type=int, default=1, help="クラウドの配色パターン. 1か2.")
 parser.add_argument("-e", "--generate_per_epoch", type=int, default=10, help="クラウドを何イテレーションごとに生成するか.")
+parser.add_argument("-d", "--count_threshold", type=int, default=10, help="単語の出現頻度がこの値を下回っていれば切り捨てる.")
 args = parser.parse_args()
 
 def main():
@@ -39,29 +40,14 @@ def main():
 		npylm.sample_lambda()
 		npylm.update_pk_vpylm()
 
-		# 訓練データのパープレキシティの計算
-		# 割と重い処理になる
-		ppl = 0
-		if epoch > 1:
-			# ppl = npylm.compute_perplexity()
-			pass
-
 		elapsed_time = time.time() - start_time
-		print "Epoch {} - {} lps - {} ppl - {} nodes (vpylm) - {} depth (vpylm) - {} nodes (hpylm)".format(
+		print "Epoch {} - {} lps".format(
 			epoch, 
-			num_lines / elapsed_time,
-			ppl,
-			npylm.get_num_nodes_of_vpylm(),
-			npylm.get_depth_of_vpylm(),
-			npylm.get_num_nodes_of_hpylm()
+			num_lines / elapsed_time
 		)
-		# 推定されたlambdaを表示する場合
-		if epoch > 1:
-			# npylm.dump_lambda()
-			pass
 
-		# 分割結果を表示
-		npylm.show_random_segmentation_result(10)
+		if epoch % args.generate_per_epoch == 0:
+			npylm.get_frequent_words(args.count_threshold)
 
 if __name__ == "__main__":
 	main()
