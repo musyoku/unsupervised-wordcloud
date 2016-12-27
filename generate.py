@@ -12,6 +12,7 @@ parser.add_argument("-o", "--output_dir", type=str, default="cloud", help="出�
 parser.add_argument("--width", type=int, default=800, help="クラウドの幅.")
 parser.add_argument("--height", type=int, default=450, help="クラウドの高さ.")
 parser.add_argument("--color", type=int, default=1, help="クラウドのcolor_func.")
+parser.add_argument("--font", type=str, default=None, help="クラウドで使うフォントのパス.")
 parser.add_argument("-f", "--max_font_size", type=int, default=150, help="最大フォントサイズ.")
 parser.add_argument("-e", "--generate_per_epoch", type=int, default=3, help="クラウドを何イテレーションごとに生成するか.")
 parser.add_argument("-c", "--count_threshold", type=int, default=10, help="単語の出現頻度がこの値を下回っていれば切り捨てる.")
@@ -72,6 +73,7 @@ def color_func_3(word, font_size, position, orientation, random_state=None, **kw
 def color_func_4(word, font_size, position, orientation, random_state=None, **kwargs):
     colors = (
         "rgb(194, 193, 165)",
+        "rgb(162, 148, 104)",
         "rgb(61, 102, 97)",
         "rgb(28, 52, 60)",
         "rgb(117, 148, 131)",
@@ -82,6 +84,8 @@ def color_func_4(word, font_size, position, orientation, random_state=None, **kw
 def main():
 	# 環境に合わせてフォントのパスを指定する。
 	font_path = "/Users/YOUR_USERNAME/Desktop/fonts/FONT_NAME.otf"
+	if args.font is not None:
+		font_path = args.font
 
 	try:
 		os.mkdir(args.output_dir)
