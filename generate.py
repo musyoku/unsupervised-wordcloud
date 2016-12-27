@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import argparse, sys, time, random, os
+import argparse, sys, time, random, os, re
 from PIL import Image
 from wordcloud import WordCloud, ImageColorGenerator
 import model
@@ -12,8 +12,8 @@ parser.add_argument("-o", "--output_dir", type=str, default="cloud", help="出�
 parser.add_argument("--width", type=int, default=800, help="クラウドの幅.")
 parser.add_argument("--height", type=int, default=450, help="クラウドの高さ.")
 parser.add_argument("--color", type=int, default=1, help="クラウドの配色パターン. 1か2.")
-parser.add_argument("-f", "--max_font_size", type=int, default=200, help="最大フォントサイズ.")
-parser.add_argument("-e", "--generate_per_epoch", type=int, default=10, help="クラウドを何イテレーションごとに生成するか.")
+parser.add_argument("-f", "--max_font_size", type=int, default=150, help="最大フォントサイズ.")
+parser.add_argument("-e", "--generate_per_epoch", type=int, default=3, help="クラウドを何イテレーションごとに生成するか.")
 parser.add_argument("-c", "--count_threshold", type=int, default=10, help="単語の出現頻度がこの値を下回っていれば切り捨てる.")
 args = parser.parse_args()
 
@@ -110,9 +110,10 @@ def main():
 			words = []
 			if len(_words) > 0:
 				for word in _words:
-					# 1文字の単語は除去
-					if len(word) == 1:
-						continue
+					# 3文字以下の単語は漢字カタカナを含まないものだけ除去
+					if len(word) < 4:
+						if re.search(ur"[一-龥ァ-ン]", word) is  None:
+							continue
 					if word in _ignore_words:
 						continue
 					count = _words[word]
@@ -127,7 +128,7 @@ def main():
 					height=args.height, 
 					stopwords=set(stop_words), 
 					max_words=args.max_words_in_cloud, 
-					max_font_size=args.font_size).generate_from_frequencies(words)
+					max_font_size=args.max_font_size).generate_from_frequencies(words)
 				color_func = color_func_1
 				if args.color == 2:
 					color_func = color_func_2
