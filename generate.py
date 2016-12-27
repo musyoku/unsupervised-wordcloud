@@ -11,7 +11,7 @@ parser.add_argument("-n", "--max_words_in_cloud", type=int, default=100, help="�
 parser.add_argument("-o", "--output_dir", type=str, default="cloud", help="出力先のフォルダのパス.")
 parser.add_argument("--width", type=int, default=800, help="クラウドの幅.")
 parser.add_argument("--height", type=int, default=450, help="クラウドの高さ.")
-parser.add_argument("--color", type=int, default=1, help="クラウドの配色パターン. 1か2.")
+parser.add_argument("--color", type=int, default=1, help="クラウドのcolor_func.")
 parser.add_argument("-f", "--max_font_size", type=int, default=150, help="最大フォントサイズ.")
 parser.add_argument("-e", "--generate_per_epoch", type=int, default=3, help="クラウドを何イテレーションごとに生成するか.")
 parser.add_argument("-c", "--count_threshold", type=int, default=10, help="単語の出現頻度がこの値を下回っていれば切り捨てる.")
@@ -54,6 +54,27 @@ def color_func_2(word, font_size, position, orientation, random_state=None, **kw
         "rgb(112, 132, 66)",
         "rgb(231, 186, 81)",
         "rgb(231, 203, 148)",
+        )
+    index = random.randint(0, len(colors) - 1)
+    return colors[index]
+
+def color_func_3(word, font_size, position, orientation, random_state=None, **kwargs):
+    colors = (
+        "rgb(35, 75, 113)",
+        "rgb(74, 133, 189)",
+        "rgb(191, 148, 79)",
+        "rgb(128, 193, 255)",
+        "rgb(227, 184, 114)",
+        )
+    index = random.randint(0, len(colors) - 1)
+    return colors[index]
+
+def color_func_4(word, font_size, position, orientation, random_state=None, **kwargs):
+    colors = (
+        "rgb(194, 193, 165)",
+        "rgb(61, 102, 97)",
+        "rgb(28, 52, 60)",
+        "rgb(117, 148, 131)",
         )
     index = random.randint(0, len(colors) - 1)
     return colors[index]
@@ -129,9 +150,8 @@ def main():
 					stopwords=set(stop_words), 
 					max_words=args.max_words_in_cloud, 
 					max_font_size=args.max_font_size).generate_from_frequencies(words)
-				color_func = color_func_1
-				if args.color == 2:
-					color_func = color_func_2
+				color_funcs = [None, color_func_1, color_func_2, color_func_3, color_func_4]
+				color_func = color_funcs[args.color]
 				wordcloud.recolor(color_func=color_func)
 				wordcloud.to_file("{}/epoch_{}.png".format(args.output_dir, epoch))
 
