@@ -60,7 +60,7 @@ def color_func_2(word, font_size, position, orientation, random_state=None, **kw
 
 def main():
 	# 環境に合わせてフォントのパスを指定する。
-	font_path = "/Users/htc/Desktop/fonts/.Hiragino Kaku Gothic Interface W5.otf"
+	font_path = "/Users/YOUR_USERNAME/Desktop/fonts/FONT_NAME.otf"
 
 	try:
 		os.mkdir(args.output_dir)
