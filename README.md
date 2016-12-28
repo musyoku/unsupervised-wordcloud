@@ -74,13 +74,13 @@ make install
 
 # 市況
 
-![image](http://musyoku.github.io/images/post/2016-12-27/sikyou.png)
+![image](http://musyoku.github.io/images/post/2016-12-28/sikyou.png)
 
 # 源氏物語
 
-![image](http://musyoku.github.io/images/post/2016-12-27/genji.png)
+![image](http://musyoku.github.io/images/post/2016-12-28/genji.png)
 
 # ヴォイニッチ手稿
 
-![image](http://musyoku.github.io/images/post/2016-12-27/voynich.png)
+![image](http://musyoku.github.io/images/post/2016-12-28/voynich.png)
 
