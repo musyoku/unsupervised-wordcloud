@@ -14,6 +14,12 @@ NPYLMの実装に興味がある方は[実装方法](http://musyoku.github.io/20
 
 # インストール
 
+## word_cloud
+
+[https://github.com/amueller/word_cloud](https://github.com/amueller/word_cloud)からソースを落としてインストールします。
+
+`pip`で入れるとなぜか古いバージョンが入って失敗します。
+
 ## 依存関係
 
 Boost 1.62の環境でビルドしているため、`libboost_python.so.1.62.0`に依存します。
